@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './auth/AuthContext'
 import SetupFolder from './screens/SetupFolder'
 import Login from './screens/Login'
 import PlaceholderScreen from './screens/PlaceholderScreen'
+import FinanceiroApp from './screens/financeiro/FinanceiroApp'
 
 function Routed() {
   const { user } = useAuth()
@@ -15,6 +16,7 @@ function Routed() {
   if (configured === null) return <p>Carregando...</p>
   if (!configured) return <SetupFolder onConfigured={() => setConfigured(true)} />
   if (!user) return <Login />
+  if (user.perfil === 'financeiro') return <FinanceiroApp />
   return <PlaceholderScreen />
 }
 

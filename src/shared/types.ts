@@ -90,3 +90,55 @@ export interface EstoqueMovimento {
   dataHora: string
   observacao: string | null
 }
+
+export interface CreateClienteInput {
+  codigo: string
+  nome: string
+  cnpjCpf: string
+  inscricaoRg?: string | null
+  endereco?: string | null
+  bairro?: string | null
+  cidade?: string | null
+  cep?: string | null
+  telefone?: string | null
+  celular?: string | null
+}
+
+export interface CreateProdutoInput {
+  codigo: string
+  descricao: string
+  unidade: string
+  valorUnitarioPadrao: number
+}
+
+export interface CreatePedidoItemInput {
+  produtoId: number
+  quantidade: number
+  valorUnitario: number
+}
+
+export interface CreatePedidoInput {
+  clienteId: number
+  usuarioId: number
+  condicaoPagamento?: string | null
+  prazoEntrega?: string | null
+  observacoes?: string | null
+  itens: CreatePedidoItemInput[]
+}
+
+export interface PedidoItemComStatus {
+  id: number
+  produtoId: number
+  produtoDescricao: string
+  quantidade: number
+  valorUnitario: number
+  valorTotal: number
+  opNumero: number
+  opStatus: StatusOrdemProducao
+  status: StatusItemPedido
+}
+
+export interface PedidoComItens extends Pedido {
+  clienteNome: string
+  itens: PedidoItemComStatus[]
+}

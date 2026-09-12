@@ -1,4 +1,13 @@
-import type { Usuario } from '../shared/types'
+import type {
+  Usuario,
+  Cliente,
+  Produto,
+  Pedido,
+  PedidoComItens,
+  CreateClienteInput,
+  CreateProdutoInput,
+  CreatePedidoInput,
+} from '../shared/types'
 
 declare global {
   interface Window {
@@ -7,6 +16,15 @@ declare global {
       setDbFolderPath(dbFolderPath: string): Promise<void>
       login(login: string, senha: string): Promise<Usuario | null>
       ensureSeedAdmin(): Promise<void>
+
+      createCliente(input: CreateClienteInput): Promise<Cliente>
+      listClientes(): Promise<Cliente[]>
+
+      createProduto(input: CreateProdutoInput): Promise<Produto>
+      listProdutos(): Promise<Produto[]>
+
+      createPedido(input: CreatePedidoInput): Promise<Pedido>
+      listPedidos(): Promise<PedidoComItens[]>
     }
   }
 }

@@ -1,38 +1,11 @@
 import type Database from 'better-sqlite3'
 import { withWriteLock } from '../lock'
-import type { Pedido, StatusItemPedido } from '../../../shared/types'
-
-interface CreatePedidoItemInput {
-  produtoId: number
-  quantidade: number
-  valorUnitario: number
-}
-
-interface CreatePedidoInput {
-  clienteId: number
-  usuarioId: number
-  condicaoPagamento?: string | null
-  prazoEntrega?: string | null
-  observacoes?: string | null
-  itens: CreatePedidoItemInput[]
-}
-
-export interface PedidoItemComStatus {
-  id: number
-  produtoId: number
-  produtoDescricao: string
-  quantidade: number
-  valorUnitario: number
-  valorTotal: number
-  opNumero: number
-  opStatus: string
-  status: StatusItemPedido
-}
-
-export interface PedidoComItens extends Pedido {
-  clienteNome: string
-  itens: PedidoItemComStatus[]
-}
+import type {
+  Pedido,
+  StatusItemPedido,
+  CreatePedidoInput,
+  PedidoComItens,
+} from '../../../shared/types'
 
 function rowToPedido(row: any): Pedido {
   return {

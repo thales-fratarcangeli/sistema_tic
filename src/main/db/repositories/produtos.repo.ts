@@ -1,13 +1,6 @@
 import type Database from 'better-sqlite3'
 import { withWriteLock } from '../lock'
-import type { Produto } from '../../../shared/types'
-
-interface CreateProdutoInput {
-  codigo: string
-  descricao: string
-  unidade: string
-  valorUnitarioPadrao: number
-}
+import type { Produto, CreateProdutoInput } from '../../../shared/types'
 
 function rowToProduto(row: any): Produto {
   return {

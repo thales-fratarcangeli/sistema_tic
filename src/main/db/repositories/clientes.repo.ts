@@ -1,19 +1,6 @@
 import type Database from 'better-sqlite3'
 import { withWriteLock } from '../lock'
-import type { Cliente } from '../../../shared/types'
-
-interface CreateClienteInput {
-  codigo: string
-  nome: string
-  cnpjCpf: string
-  inscricaoRg?: string | null
-  endereco?: string | null
-  bairro?: string | null
-  cidade?: string | null
-  cep?: string | null
-  telefone?: string | null
-  celular?: string | null
-}
+import type { Cliente, CreateClienteInput } from '../../../shared/types'
 
 function rowToCliente(row: any): Cliente {
   return {

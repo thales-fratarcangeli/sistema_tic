@@ -3,6 +3,7 @@ import path from 'node:path'
 import { readConfig, writeConfig } from '../src/main/config'
 import { openDatabase } from '../src/main/db/connection'
 import { registerAuthIpc } from '../src/main/ipc/authIpc'
+import { registerFinanceiroIpc } from '../src/main/ipc/financeiroIpc'
 import { ensureDailyBackup } from '../src/main/backup'
 
 const configPath = path.join(app.getPath('userData'), 'config.json')
@@ -15,6 +16,7 @@ function openDbAndRegisterIpc(dbFolderPath: string) {
 
   const db = openDatabase(dbFilePath)
   registerAuthIpc(db, dbFilePath)
+  registerFinanceiroIpc(db, dbFilePath)
 }
 
 function createWindow() {
