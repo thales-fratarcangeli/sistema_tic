@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 export default function SetupFolder({ onConfigured }: { onConfigured: () => void }) {
-  const [path, setPath] = useState('')
+  const [path, setPath] = useState('C:\\bt_fitas_dados')
   const [saving, setSaving] = useState(false)
 
   async function handleSave() {
@@ -16,7 +16,11 @@ export default function SetupFolder({ onConfigured }: { onConfigured: () => void
   return (
     <div>
       <h1>Configuração inicial</h1>
-      <p>Informe o caminho da pasta compartilhada na rede (ex: \\SERVIDOR\bt_fitas):</p>
+      <p>
+        Informe o caminho da pasta compartilhada na rede (ex: \\SERVIDOR\bt_fitas).
+        Para testar sozinho num computador só, pode deixar o caminho local
+        preenchido abaixo.
+      </p>
       <input
         value={path}
         onChange={(e) => setPath(e.target.value)}
