@@ -1,5 +1,5 @@
 import type Database from 'better-sqlite3'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import { withWriteLock } from '../lock'
 import type { Usuario, Perfil } from '../../../shared/types'
 
