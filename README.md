@@ -7,6 +7,11 @@ saída/expedição, finalizando o pedido.
 
 Roda 100% na rede local, sem servidor de aplicação e sem internet.
 
+**Quer só instalar e testar?** Veja o
+[tutorial de instalação](TUTORIAL_INSTALACAO.md) — os instaladores
+prontos ficam nos
+[Releases](https://github.com/thales-fratarcangeli/sistema_tic/releases/latest).
+
 ## Arquitetura
 
 ```
