@@ -15,4 +15,9 @@ export const IpcChannels = {
   ESTOQUE_LIST_EM_ESTOQUE: 'estoque:listEmEstoque',
   ESTOQUE_REGISTRAR_ENTRADA: 'estoque:registrarEntrada',
   ESTOQUE_REGISTRAR_SAIDA: 'estoque:registrarSaida',
+  USUARIOS_CREATE: 'usuarios:create',
+  USUARIOS_LIST: 'usuarios:list',
+  USUARIOS_SET_ACTIVE: 'usuarios:setActive',
+  USUARIOS_SET_PERFIL: 'usuarios:setPerfil',
+  USUARIOS_RESET_PASSWORD: 'usuarios:resetPassword',
 } as const

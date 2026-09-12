@@ -180,3 +180,10 @@ export interface CreateMovimentoEstoqueInput {
   quantidade: number
   observacao?: string | null
 }
+
+export interface CreateUsuarioInput {
+  nome: string
+  login: string
+  senha: string
+  perfil: Perfil
+}

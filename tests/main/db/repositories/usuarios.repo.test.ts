@@ -8,6 +8,8 @@ import {
   verifyLogin,
   listUsers,
   setActive,
+  setPerfil,
+  resetPassword,
 } from '../../../../src/main/db/repositories/usuarios.repo'
 
 let tmpDir: string
@@ -65,5 +67,31 @@ describe('usuarios.repo', () => {
     const users = listUsers(db)
     expect(users.length).toBe(1)
     expect(users[0].login).toBe('ana')
+  })
+
+  it('changes a user perfil', async () => {
+    const user = await createUser(db, dbPath, {
+      nome: 'Ana',
+      login: 'ana',
+      senha: 'x',
+      perfil: 'financeiro',
+    })
+    await setPerfil(db, dbPath, user.id, 'admin')
+
+    const users = listUsers(db)
+    expect(users[0].perfil).toBe('admin')
+  })
+
+  it('resets a user password', async () => {
+    const user = await createUser(db, dbPath, {
+      nome: 'Ana',
+      login: 'ana',
+      senha: 'senhaAntiga',
+      perfil: 'financeiro',
+    })
+    await resetPassword(db, dbPath, user.id, 'senhaNova')
+
+    expect(verifyLogin(db, 'ana', 'senhaAntiga')).toBeNull()
+    expect(verifyLogin(db, 'ana', 'senhaNova')).not.toBeNull()
   })
 })

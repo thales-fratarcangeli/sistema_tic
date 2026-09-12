@@ -2,6 +2,8 @@ import { contextBridge, ipcRenderer } from 'electron'
 import { IpcChannels } from '../src/shared/ipc-channels'
 import type {
   Usuario,
+  Perfil,
+  CreateUsuarioInput,
   Cliente,
   Produto,
   Pedido,
@@ -54,4 +56,14 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.invoke(IpcChannels.ESTOQUE_REGISTRAR_ENTRADA, input),
   registrarSaida: (input: CreateMovimentoEstoqueInput): Promise<EstoqueMovimento> =>
     ipcRenderer.invoke(IpcChannels.ESTOQUE_REGISTRAR_SAIDA, input),
+
+  createUsuario: (input: CreateUsuarioInput): Promise<Usuario> =>
+    ipcRenderer.invoke(IpcChannels.USUARIOS_CREATE, input),
+  listUsuarios: (): Promise<Usuario[]> => ipcRenderer.invoke(IpcChannels.USUARIOS_LIST),
+  setUsuarioAtivo: (id: number, ativo: boolean): Promise<void> =>
+    ipcRenderer.invoke(IpcChannels.USUARIOS_SET_ACTIVE, id, ativo),
+  setUsuarioPerfil: (id: number, perfil: Perfil): Promise<void> =>
+    ipcRenderer.invoke(IpcChannels.USUARIOS_SET_PERFIL, id, perfil),
+  resetUsuarioSenha: (id: number, novaSenha: string): Promise<void> =>
+    ipcRenderer.invoke(IpcChannels.USUARIOS_RESET_PASSWORD, id, novaSenha),
 })

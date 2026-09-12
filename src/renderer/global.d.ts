@@ -1,5 +1,7 @@
 import type {
   Usuario,
+  Perfil,
+  CreateUsuarioInput,
   Cliente,
   Produto,
   Pedido,
@@ -41,6 +43,12 @@ declare global {
       listEmEstoque(): Promise<ItemEmEstoque[]>
       registrarEntrada(input: CreateMovimentoEstoqueInput): Promise<EstoqueMovimento>
       registrarSaida(input: CreateMovimentoEstoqueInput): Promise<EstoqueMovimento>
+
+      createUsuario(input: CreateUsuarioInput): Promise<Usuario>
+      listUsuarios(): Promise<Usuario[]>
+      setUsuarioAtivo(id: number, ativo: boolean): Promise<void>
+      setUsuarioPerfil(id: number, perfil: Perfil): Promise<void>
+      resetUsuarioSenha(id: number, novaSenha: string): Promise<void>
     }
   }
 }

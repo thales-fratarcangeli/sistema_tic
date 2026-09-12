@@ -3,7 +3,7 @@ import { useAuth } from '../../auth/AuthContext'
 import type { OpComContexto } from '../../../shared/types'
 
 export default function ProducaoApp() {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const [ops, setOps] = useState<OpComContexto[]>([])
   const [quantidades, setQuantidades] = useState<Record<number, string>>({})
   const [erro, setErro] = useState<string | null>(null)
@@ -60,12 +60,6 @@ export default function ProducaoApp() {
 
   return (
     <div>
-      <p>
-        Logado como <strong>{user?.nome}</strong> ({user?.perfil})
-        <button onClick={logout} style={{ marginLeft: '1rem' }}>
-          Sair
-        </button>
-      </p>
       <h2>Ordens de produção</h2>
       {erro && <p style={{ color: 'red' }}>{erro}</p>}
 

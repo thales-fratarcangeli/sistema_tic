@@ -1,14 +1,7 @@
 import type Database from 'better-sqlite3'
 import bcrypt from 'bcryptjs'
 import { withWriteLock } from '../lock'
-import type { Usuario, Perfil } from '../../../shared/types'
-
-interface CreateUserInput {
-  nome: string
-  login: string
-  senha: string
-  perfil: Perfil
-}
+import type { Usuario, Perfil, CreateUsuarioInput } from '../../../shared/types'
 
 function rowToUsuario(row: any): Usuario {
   return {
@@ -23,7 +16,7 @@ function rowToUsuario(row: any): Usuario {
 export async function createUser(
   db: Database.Database,
   dbFilePath: string,
-  input: CreateUserInput
+  input: CreateUsuarioInput
 ): Promise<Usuario> {
   const senhaHash = await bcrypt.hash(input.senha, 10)
   return withWriteLock(dbFilePath, () => {
@@ -64,5 +57,28 @@ export async function setActive(
 ): Promise<void> {
   await withWriteLock(dbFilePath, () => {
     db.prepare('UPDATE usuarios SET ativo = ? WHERE id = ?').run(ativo ? 1 : 0, id)
+  })
+}
+
+export async function setPerfil(
+  db: Database.Database,
+  dbFilePath: string,
+  id: number,
+  perfil: Perfil
+): Promise<void> {
+  await withWriteLock(dbFilePath, () => {
+    db.prepare('UPDATE usuarios SET perfil = ? WHERE id = ?').run(perfil, id)
+  })
+}
+
+export async function resetPassword(
+  db: Database.Database,
+  dbFilePath: string,
+  id: number,
+  novaSenha: string
+): Promise<void> {
+  const senhaHash = await bcrypt.hash(novaSenha, 10)
+  await withWriteLock(dbFilePath, () => {
+    db.prepare('UPDATE usuarios SET senha_hash = ? WHERE id = ?').run(senhaHash, id)
   })
 }

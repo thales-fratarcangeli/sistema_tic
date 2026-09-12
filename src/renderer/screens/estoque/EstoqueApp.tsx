@@ -3,7 +3,7 @@ import { useAuth } from '../../auth/AuthContext'
 import type { ItemAguardandoEntrada, ItemEmEstoque } from '../../../shared/types'
 
 export default function EstoqueApp() {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const [aguardando, setAguardando] = useState<ItemAguardandoEntrada[]>([])
   const [emEstoque, setEmEstoque] = useState<ItemEmEstoque[]>([])
   const [erro, setErro] = useState<string | null>(null)
@@ -61,12 +61,6 @@ export default function EstoqueApp() {
 
   return (
     <div>
-      <p>
-        Logado como <strong>{user?.nome}</strong> ({user?.perfil})
-        <button onClick={logout} style={{ marginLeft: '1rem' }}>
-          Sair
-        </button>
-      </p>
       {erro && <p style={{ color: 'red' }}>{erro}</p>}
 
       <h2>Aguardando conferência de entrada</h2>
