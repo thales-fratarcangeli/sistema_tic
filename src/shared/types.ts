@@ -142,3 +142,16 @@ export interface PedidoComItens extends Pedido {
   clienteNome: string
   itens: PedidoItemComStatus[]
 }
+
+export interface OpComContexto extends OrdemProducao {
+  pedidoNumero: number
+  clienteNome: string
+  produtoDescricao: string
+}
+
+export interface CreateApontamentoInput {
+  opId: number
+  usuarioId: number
+  quantidade: number
+  observacao?: string | null
+}

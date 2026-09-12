@@ -8,4 +8,7 @@ export const IpcChannels = {
   PRODUTOS_LIST: 'produtos:list',
   PEDIDOS_CREATE: 'pedidos:create',
   PEDIDOS_LIST: 'pedidos:list',
+  PRODUCAO_LIST_OPS_ABERTAS: 'producao:listOpsAbertas',
+  PRODUCAO_CREATE_APONTAMENTO: 'producao:createApontamento',
+  PRODUCAO_ENCERRAR_OP: 'producao:encerrarOp',
 } as const

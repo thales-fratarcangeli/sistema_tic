@@ -9,6 +9,9 @@ import type {
   CreateClienteInput,
   CreateProdutoInput,
   CreatePedidoInput,
+  OpComContexto,
+  CreateApontamentoInput,
+  ApontamentoProducao,
 } from '../src/shared/types'
 
 contextBridge.exposeInMainWorld('api', {
@@ -31,4 +34,11 @@ contextBridge.exposeInMainWorld('api', {
   createPedido: (input: CreatePedidoInput): Promise<Pedido> =>
     ipcRenderer.invoke(IpcChannels.PEDIDOS_CREATE, input),
   listPedidos: (): Promise<PedidoComItens[]> => ipcRenderer.invoke(IpcChannels.PEDIDOS_LIST),
+
+  listOpsAbertas: (): Promise<OpComContexto[]> =>
+    ipcRenderer.invoke(IpcChannels.PRODUCAO_LIST_OPS_ABERTAS),
+  createApontamento: (input: CreateApontamentoInput): Promise<ApontamentoProducao> =>
+    ipcRenderer.invoke(IpcChannels.PRODUCAO_CREATE_APONTAMENTO, input),
+  encerrarOp: (opId: number): Promise<void> =>
+    ipcRenderer.invoke(IpcChannels.PRODUCAO_ENCERRAR_OP, opId),
 })

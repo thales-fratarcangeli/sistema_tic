@@ -4,6 +4,7 @@ import SetupFolder from './screens/SetupFolder'
 import Login from './screens/Login'
 import PlaceholderScreen from './screens/PlaceholderScreen'
 import FinanceiroApp from './screens/financeiro/FinanceiroApp'
+import ProducaoApp from './screens/producao/ProducaoApp'
 
 function Routed() {
   const { user } = useAuth()
@@ -17,6 +18,7 @@ function Routed() {
   if (!configured) return <SetupFolder onConfigured={() => setConfigured(true)} />
   if (!user) return <Login />
   if (user.perfil === 'financeiro') return <FinanceiroApp />
+  if (user.perfil === 'producao') return <ProducaoApp />
   return <PlaceholderScreen />
 }
 

@@ -7,6 +7,9 @@ import type {
   CreateClienteInput,
   CreateProdutoInput,
   CreatePedidoInput,
+  OpComContexto,
+  CreateApontamentoInput,
+  ApontamentoProducao,
 } from '../shared/types'
 
 declare global {
@@ -25,6 +28,10 @@ declare global {
 
       createPedido(input: CreatePedidoInput): Promise<Pedido>
       listPedidos(): Promise<PedidoComItens[]>
+
+      listOpsAbertas(): Promise<OpComContexto[]>
+      createApontamento(input: CreateApontamentoInput): Promise<ApontamentoProducao>
+      encerrarOp(opId: number): Promise<void>
     }
   }
 }
