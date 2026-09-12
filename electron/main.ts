@@ -24,6 +24,13 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
+    // Packaged builds already carry this icon on the .exe itself (see
+    // build.win.icon in package.json) — build-resources/ isn't bundled
+    // into the app, so only set it explicitly in dev, where the window
+    // would otherwise show the default Electron icon.
+    ...(process.env.VITE_DEV_SERVER_URL
+      ? { icon: path.join(__dirname, '../build-resources/icon.ico') }
+      : {}),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,

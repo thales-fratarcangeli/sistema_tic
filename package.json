@@ -1,6 +1,6 @@
 {
   "name": "bt_fitas",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "main": "dist-electron/main.js",
   "scripts": {
@@ -31,7 +31,8 @@
     "win": {
       "target": [
         "nsis"
-      ]
+      ],
+      "icon": "build-resources/icon.ico"
     },
     "nsis": {
       "oneClick": false,
