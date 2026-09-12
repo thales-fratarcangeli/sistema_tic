@@ -1,23 +1,18 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'node:path'
 import { readConfig, writeConfig } from '../src/main/config'
-import { openDatabase } from '../src/main/db/connection'
+import { setupDatabase } from '../src/main/dbSetup'
 import { registerAuthIpc } from '../src/main/ipc/authIpc'
 import { registerFinanceiroIpc } from '../src/main/ipc/financeiroIpc'
 import { registerProducaoIpc } from '../src/main/ipc/producaoIpc'
 import { registerEstoqueIpc } from '../src/main/ipc/estoqueIpc'
 import { registerAdminIpc } from '../src/main/ipc/adminIpc'
-import { ensureDailyBackup } from '../src/main/backup'
 
 const configPath = path.join(app.getPath('userData'), 'config.json')
 
 function openDbAndRegisterIpc(dbFolderPath: string) {
-  const dbFilePath = path.join(dbFolderPath, 'dados.db')
-  const backupsDir = path.join(dbFolderPath, 'backups')
-  const today = new Date().toISOString().slice(0, 10)
-  ensureDailyBackup(dbFilePath, backupsDir, today)
+  const { db, dbFilePath } = setupDatabase(dbFolderPath)
 
-  const db = openDatabase(dbFilePath)
   registerAuthIpc(db, dbFilePath)
   registerFinanceiroIpc(db, dbFilePath)
   registerProducaoIpc(db, dbFilePath)

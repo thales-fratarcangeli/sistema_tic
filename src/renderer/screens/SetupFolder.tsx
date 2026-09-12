@@ -3,14 +3,23 @@ import { useState } from 'react'
 export default function SetupFolder({ onConfigured }: { onConfigured: () => void }) {
   const [path, setPath] = useState('C:\\bt_fitas_dados')
   const [saving, setSaving] = useState(false)
+  const [erro, setErro] = useState<string | null>(null)
 
   async function handleSave() {
     if (!path.trim()) return
+    setErro(null)
     setSaving(true)
-    await window.api.setDbFolderPath(path.trim())
-    await window.api.ensureSeedAdmin()
-    setSaving(false)
-    onConfigured()
+    try {
+      await window.api.setDbFolderPath(path.trim())
+      await window.api.ensureSeedAdmin()
+      onConfigured()
+    } catch (err) {
+      setErro(
+        'Não foi possível usar esse caminho. Confira se ele existe (ou pode ser criado) e se você tem permissão de escrita nele.'
+      )
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -30,6 +39,7 @@ export default function SetupFolder({ onConfigured }: { onConfigured: () => void
       <button onClick={handleSave} disabled={saving}>
         {saving ? 'Salvando...' : 'Salvar'}
       </button>
+      {erro && <p style={{ color: 'red' }}>{erro}</p>}
     </div>
   )
 }
