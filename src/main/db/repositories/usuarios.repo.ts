@@ -49,6 +49,23 @@ export function listUsers(db: Database.Database): Usuario[] {
   return rows.map(rowToUsuario)
 }
 
+/**
+ * Bootstraps a default admin user if the database has none yet. Must be
+ * called every time the database is opened (not just on first-ever setup)
+ * — a database can otherwise end up schema-ready but userless, e.g. if a
+ * previous run wrote the config pointing at this folder but crashed before
+ * ever seeding a user, leaving nobody able to log in.
+ */
+export async function ensureSeedAdmin(db: Database.Database, dbFilePath: string): Promise<void> {
+  if (listUsers(db).length > 0) return
+  await createUser(db, dbFilePath, {
+    nome: 'Administrador',
+    login: 'admin',
+    senha: 'admin123',
+    perfil: 'admin',
+  })
+}
+
 export async function setActive(
   db: Database.Database,
   dbFilePath: string,

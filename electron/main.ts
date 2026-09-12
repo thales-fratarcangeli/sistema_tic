@@ -10,8 +10,8 @@ import { registerAdminIpc } from '../src/main/ipc/adminIpc'
 
 const configPath = path.join(app.getPath('userData'), 'config.json')
 
-function openDbAndRegisterIpc(dbFolderPath: string) {
-  const { db, dbFilePath } = setupDatabase(dbFolderPath)
+async function openDbAndRegisterIpc(dbFolderPath: string) {
+  const { db, dbFilePath } = await setupDatabase(dbFolderPath)
 
   registerAuthIpc(db, dbFilePath)
   registerFinanceiroIpc(db, dbFilePath)
@@ -38,16 +38,16 @@ function createWindow() {
   }
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   ipcMain.handle('config:get', () => readConfig(configPath))
-  ipcMain.handle('config:set', (_event, dbFolderPath: string) => {
+  ipcMain.handle('config:set', async (_event, dbFolderPath: string) => {
     writeConfig(configPath, { dbFolderPath })
-    openDbAndRegisterIpc(dbFolderPath)
+    await openDbAndRegisterIpc(dbFolderPath)
   })
 
   const existing = readConfig(configPath)
   if (existing) {
-    openDbAndRegisterIpc(existing.dbFolderPath)
+    await openDbAndRegisterIpc(existing.dbFolderPath)
   }
 
   createWindow()
