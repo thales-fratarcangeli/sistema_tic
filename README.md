@@ -92,6 +92,9 @@ No primeiro uso, o app pede o caminho da pasta compartilhada de rede (ex:
 
 **Nota sobre módulo nativo:** `better-sqlite3` é o único módulo nativo do
 projeto e usa prebuilds N-API (funcionam em Node e Electron sem rebuild).
-Por isso a senha usa `bcryptjs` (JS puro) em vez de `bcrypt` nativo — evita
-depender de toolchain de compilação (Visual Studio Build Tools) nos
-computadores da fábrica onde o app será instalado.
+Por isso a senha usa `bcryptjs` (JS puro) em vez de `bcrypt` nativo, e o
+`.npmrc` do projeto define `ignore-scripts=true` — evita que o `npm
+install` tente compilar código nativo (precisaria de Visual Studio Build
+Tools), o que não pode ser assumido nos computadores da fábrica. O binário
+do Electron é baixado automaticamente na primeira vez que rodar `npm run
+dev`.
