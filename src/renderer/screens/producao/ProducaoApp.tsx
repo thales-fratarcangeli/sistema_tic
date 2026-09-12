@@ -61,7 +61,7 @@ export default function ProducaoApp() {
   return (
     <div>
       <h2>Ordens de produção</h2>
-      {erro && <p style={{ color: 'red' }}>{erro}</p>}
+      {erro && <p className="error">{erro}</p>}
 
       <table>
         <thead>

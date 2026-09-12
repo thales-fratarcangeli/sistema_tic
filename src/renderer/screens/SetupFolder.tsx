@@ -23,23 +23,28 @@ export default function SetupFolder({ onConfigured }: { onConfigured: () => void
   }
 
   return (
-    <div>
-      <h1>Configuração inicial</h1>
-      <p>
-        Informe o caminho da pasta compartilhada na rede (ex: \\SERVIDOR\bt_fitas).
-        Para testar sozinho num computador só, pode deixar o caminho local
-        preenchido abaixo.
-      </p>
-      <input
-        value={path}
-        onChange={(e) => setPath(e.target.value)}
-        placeholder="\\SERVIDOR\bt_fitas"
-        style={{ width: '400px' }}
-      />
-      <button onClick={handleSave} disabled={saving}>
-        {saving ? 'Salvando...' : 'Salvar'}
-      </button>
-      {erro && <p style={{ color: 'red' }}>{erro}</p>}
+    <div className="center-screen">
+      <div className="card">
+        <h1 className="brand">BT Fitas</h1>
+        <p className="subtitle">Configuração inicial</p>
+        <p>
+          Informe o caminho da pasta compartilhada na rede (ex:{' '}
+          <code>\\SERVIDOR\bt_fitas</code>). Para testar sozinho num computador
+          só, pode deixar o caminho local já preenchido abaixo.
+        </p>
+        <div className="field">
+          <label>Pasta compartilhada</label>
+          <input
+            value={path}
+            onChange={(e) => setPath(e.target.value)}
+            placeholder="\\SERVIDOR\bt_fitas"
+          />
+        </div>
+        <button className="primary" onClick={handleSave} disabled={saving}>
+          {saving ? 'Salvando...' : 'Salvar'}
+        </button>
+        {erro && <p className="error">{erro}</p>}
+      </div>
     </div>
   )
 }

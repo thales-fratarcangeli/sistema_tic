@@ -7,17 +7,27 @@ import ProducaoApp from './screens/producao/ProducaoApp'
 import EstoqueApp from './screens/estoque/EstoqueApp'
 import AdminApp from './screens/admin/AdminApp'
 
+const PERFIL_LABEL: Record<string, string> = {
+  financeiro: 'Financeiro',
+  producao: 'Produção',
+  estoque: 'Estoque',
+  admin: 'Admin',
+}
+
 function AppShell({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth()
   return (
-    <div>
-      <p>
-        Logado como <strong>{user?.nome}</strong> ({user?.perfil})
-        <button onClick={logout} style={{ marginLeft: '1rem' }}>
-          Sair
-        </button>
-      </p>
-      {children}
+    <div className="app-shell">
+      <header className="topbar">
+        <span className="brand">BT Fitas</span>
+        <span className="topbar-user">
+          {user?.nome} · {PERFIL_LABEL[user?.perfil ?? ''] ?? user?.perfil}
+          <button className="link-button" onClick={logout}>
+            Sair
+          </button>
+        </span>
+      </header>
+      <main className="container">{children}</main>
     </div>
   )
 }
@@ -30,7 +40,7 @@ function Routed() {
     window.api.getDbFolderPath().then((config) => setConfigured(config !== null))
   }, [])
 
-  if (configured === null) return <p>Carregando...</p>
+  if (configured === null) return <p className="loading">Carregando...</p>
   if (!configured) return <SetupFolder onConfigured={() => setConfigured(true)} />
   if (!user) return <Login />
 

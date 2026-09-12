@@ -17,11 +17,22 @@ export default function FinanceiroApp() {
 
   return (
     <div>
-      <nav>
-        <button onClick={() => setTab('pedidos')}>Pedidos</button>
-        <button onClick={() => setTab('novo-pedido')}>Novo pedido</button>
-        <button onClick={() => setTab('clientes')}>Clientes</button>
-        <button onClick={() => setTab('produtos')}>Produtos</button>
+      <nav className="tabs">
+        <button className={tab === 'pedidos' ? 'active' : ''} onClick={() => setTab('pedidos')}>
+          Pedidos
+        </button>
+        <button
+          className={tab === 'novo-pedido' ? 'active' : ''}
+          onClick={() => setTab('novo-pedido')}
+        >
+          Novo pedido
+        </button>
+        <button className={tab === 'clientes' ? 'active' : ''} onClick={() => setTab('clientes')}>
+          Clientes
+        </button>
+        <button className={tab === 'produtos' ? 'active' : ''} onClick={() => setTab('produtos')}>
+          Produtos
+        </button>
       </nav>
 
       {tab === 'pedidos' && <ListaPedidos ref={listaPedidosRef} />}

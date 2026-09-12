@@ -11,11 +11,22 @@ export default function AdminApp() {
 
   return (
     <div>
-      <nav>
-        <button onClick={() => setTab('usuarios')}>Usuários</button>
-        <button onClick={() => setTab('financeiro')}>Financeiro</button>
-        <button onClick={() => setTab('producao')}>Produção</button>
-        <button onClick={() => setTab('estoque')}>Estoque</button>
+      <nav className="tabs">
+        <button className={tab === 'usuarios' ? 'active' : ''} onClick={() => setTab('usuarios')}>
+          Usuários
+        </button>
+        <button
+          className={tab === 'financeiro' ? 'active' : ''}
+          onClick={() => setTab('financeiro')}
+        >
+          Financeiro
+        </button>
+        <button className={tab === 'producao' ? 'active' : ''} onClick={() => setTab('producao')}>
+          Produção
+        </button>
+        <button className={tab === 'estoque' ? 'active' : ''} onClick={() => setTab('estoque')}>
+          Estoque
+        </button>
       </nav>
 
       {tab === 'usuarios' && <Usuarios />}

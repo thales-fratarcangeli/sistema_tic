@@ -69,7 +69,7 @@ export default function Clientes() {
           {saving ? 'Salvando...' : 'Adicionar cliente'}
         </button>
       </form>
-      {erro && <p style={{ color: 'red' }}>{erro}</p>}
+      {erro && <p className="error">{erro}</p>}
 
       <table>
         <thead>

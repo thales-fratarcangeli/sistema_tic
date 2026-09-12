@@ -61,7 +61,7 @@ export default function EstoqueApp() {
 
   return (
     <div>
-      {erro && <p style={{ color: 'red' }}>{erro}</p>}
+      {erro && <p className="error">{erro}</p>}
 
       <h2>Aguardando conferência de entrada</h2>
       <table>

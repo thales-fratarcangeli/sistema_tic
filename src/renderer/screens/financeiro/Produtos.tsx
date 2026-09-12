@@ -71,7 +71,7 @@ export default function Produtos() {
           {saving ? 'Salvando...' : 'Adicionar produto'}
         </button>
       </form>
-      {erro && <p style={{ color: 'red' }}>{erro}</p>}
+      {erro && <p className="error">{erro}</p>}
 
       <table>
         <thead>

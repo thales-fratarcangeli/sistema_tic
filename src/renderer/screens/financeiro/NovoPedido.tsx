@@ -163,7 +163,7 @@ export default function NovoPedido({ onCriado }: { onCriado: () => void }) {
             {saving ? 'Salvando...' : 'Lançar pedido'}
           </button>
         </div>
-        {erro && <p style={{ color: 'red' }}>{erro}</p>}
+        {erro && <p className="error">{erro}</p>}
       </form>
     </div>
   )

@@ -81,7 +81,7 @@ export default function Usuarios() {
           {saving ? 'Salvando...' : 'Criar usuário'}
         </button>
       </form>
-      {erro && <p style={{ color: 'red' }}>{erro}</p>}
+      {erro && <p className="error">{erro}</p>}
 
       <table>
         <thead>
