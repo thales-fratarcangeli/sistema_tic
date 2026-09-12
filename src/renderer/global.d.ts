@@ -10,6 +10,10 @@ import type {
   OpComContexto,
   CreateApontamentoInput,
   ApontamentoProducao,
+  ItemAguardandoEntrada,
+  ItemEmEstoque,
+  CreateMovimentoEstoqueInput,
+  EstoqueMovimento,
 } from '../shared/types'
 
 declare global {
@@ -32,6 +36,11 @@ declare global {
       listOpsAbertas(): Promise<OpComContexto[]>
       createApontamento(input: CreateApontamentoInput): Promise<ApontamentoProducao>
       encerrarOp(opId: number): Promise<void>
+
+      listAguardandoEntrada(): Promise<ItemAguardandoEntrada[]>
+      listEmEstoque(): Promise<ItemEmEstoque[]>
+      registrarEntrada(input: CreateMovimentoEstoqueInput): Promise<EstoqueMovimento>
+      registrarSaida(input: CreateMovimentoEstoqueInput): Promise<EstoqueMovimento>
     }
   }
 }

@@ -5,6 +5,7 @@ import { openDatabase } from '../src/main/db/connection'
 import { registerAuthIpc } from '../src/main/ipc/authIpc'
 import { registerFinanceiroIpc } from '../src/main/ipc/financeiroIpc'
 import { registerProducaoIpc } from '../src/main/ipc/producaoIpc'
+import { registerEstoqueIpc } from '../src/main/ipc/estoqueIpc'
 import { ensureDailyBackup } from '../src/main/backup'
 
 const configPath = path.join(app.getPath('userData'), 'config.json')
@@ -19,6 +20,7 @@ function openDbAndRegisterIpc(dbFolderPath: string) {
   registerAuthIpc(db, dbFilePath)
   registerFinanceiroIpc(db, dbFilePath)
   registerProducaoIpc(db, dbFilePath)
+  registerEstoqueIpc(db, dbFilePath)
 }
 
 function createWindow() {

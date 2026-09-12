@@ -5,6 +5,7 @@ import Login from './screens/Login'
 import PlaceholderScreen from './screens/PlaceholderScreen'
 import FinanceiroApp from './screens/financeiro/FinanceiroApp'
 import ProducaoApp from './screens/producao/ProducaoApp'
+import EstoqueApp from './screens/estoque/EstoqueApp'
 
 function Routed() {
   const { user } = useAuth()
@@ -19,6 +20,7 @@ function Routed() {
   if (!user) return <Login />
   if (user.perfil === 'financeiro') return <FinanceiroApp />
   if (user.perfil === 'producao') return <ProducaoApp />
+  if (user.perfil === 'estoque') return <EstoqueApp />
   return <PlaceholderScreen />
 }
 

@@ -12,6 +12,10 @@ import type {
   OpComContexto,
   CreateApontamentoInput,
   ApontamentoProducao,
+  ItemAguardandoEntrada,
+  ItemEmEstoque,
+  CreateMovimentoEstoqueInput,
+  EstoqueMovimento,
 } from '../src/shared/types'
 
 contextBridge.exposeInMainWorld('api', {
@@ -41,4 +45,13 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.invoke(IpcChannels.PRODUCAO_CREATE_APONTAMENTO, input),
   encerrarOp: (opId: number): Promise<void> =>
     ipcRenderer.invoke(IpcChannels.PRODUCAO_ENCERRAR_OP, opId),
+
+  listAguardandoEntrada: (): Promise<ItemAguardandoEntrada[]> =>
+    ipcRenderer.invoke(IpcChannels.ESTOQUE_LIST_AGUARDANDO_ENTRADA),
+  listEmEstoque: (): Promise<ItemEmEstoque[]> =>
+    ipcRenderer.invoke(IpcChannels.ESTOQUE_LIST_EM_ESTOQUE),
+  registrarEntrada: (input: CreateMovimentoEstoqueInput): Promise<EstoqueMovimento> =>
+    ipcRenderer.invoke(IpcChannels.ESTOQUE_REGISTRAR_ENTRADA, input),
+  registrarSaida: (input: CreateMovimentoEstoqueInput): Promise<EstoqueMovimento> =>
+    ipcRenderer.invoke(IpcChannels.ESTOQUE_REGISTRAR_SAIDA, input),
 })

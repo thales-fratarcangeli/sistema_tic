@@ -11,4 +11,8 @@ export const IpcChannels = {
   PRODUCAO_LIST_OPS_ABERTAS: 'producao:listOpsAbertas',
   PRODUCAO_CREATE_APONTAMENTO: 'producao:createApontamento',
   PRODUCAO_ENCERRAR_OP: 'producao:encerrarOp',
+  ESTOQUE_LIST_AGUARDANDO_ENTRADA: 'estoque:listAguardandoEntrada',
+  ESTOQUE_LIST_EM_ESTOQUE: 'estoque:listEmEstoque',
+  ESTOQUE_REGISTRAR_ENTRADA: 'estoque:registrarEntrada',
+  ESTOQUE_REGISTRAR_SAIDA: 'estoque:registrarSaida',
 } as const

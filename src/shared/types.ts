@@ -155,3 +155,28 @@ export interface CreateApontamentoInput {
   quantidade: number
   observacao?: string | null
 }
+
+export interface ItemAguardandoEntrada {
+  pedidoItemId: number
+  pedidoNumero: number
+  clienteNome: string
+  produtoDescricao: string
+  quantidade: number
+  opNumero: number
+}
+
+export interface ItemEmEstoque {
+  pedidoItemId: number
+  pedidoNumero: number
+  clienteNome: string
+  produtoDescricao: string
+  quantidade: number
+  dataEntrada: string
+}
+
+export interface CreateMovimentoEstoqueInput {
+  pedidoItemId: number
+  usuarioId: number
+  quantidade: number
+  observacao?: string | null
+}
