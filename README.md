@@ -5,48 +5,91 @@ produção recebe as ordens de produção (OP) geradas automaticamente, fabrica
 e encerra a OP, o estoque confere a entrada e depois registra a
 saída/expedição, finalizando o pedido.
 
-Roda 100% na rede local, sem servidor de aplicação e sem internet.
+Roda 100% na rede local, sem internet — como app desktop em cada
+computador ou como sistema web acessado pelo navegador.
 
 **Quer só instalar e testar?** Veja o
 [tutorial de instalação](TUTORIAL_INSTALACAO.md) — os instaladores
 prontos ficam nos
 [Releases](https://github.com/thales-fratarcangeli/sistema_tic/releases/latest).
 
-## Arquitetura
+## Duas versões, um só backend
+
+O repositório tem **duas versões** do sistema, que compartilham a mesma
+interface React e o mesmo backend **Express + Prisma** (SQLite):
+
+| | Desktop (Electron) | Web (navegador) |
+|---|---|---|
+| Onde roda o backend | Dentro de cada app, só em `127.0.0.1` | Um servidor na rede da fábrica |
+| Banco | `dados.db` na pasta compartilhada (`\\SERVIDOR\bt_fitas`) | `dados.db` na pasta do servidor (`BT_FITAS_DATA_DIR`) |
+| Acesso | App instalado em cada computador | `http://servidor:3000` em qualquer navegador |
+| Desenvolvimento | `npm run dev:desktop` | `npm run dev:web` |
+| Produção | `npm run dist` (instalador `.exe`) | `npm run build:web` + `npm run start:web` |
 
 ```
-\\SERVIDOR\bt_fitas\              (pasta compartilhada — servidor mãe passivo,
-  ├── dados.db                     só hospeda a pasta, não roda nenhum processo)
-  ├── dados.db.lock
-  └── backups\
-        └── dados-2026-09-12.db
-
-Computador Financeiro   Computador Produção   Computador Estoque   Computador Admin
-   [App Electron]          [App Electron]        [App Electron]      [App Electron]
-        └───────────────────────┴──────────────────────┴───────────────────┘
-                                 acesso direto ao dados.db via caminho de rede
+Versão desktop                                 Versão web
+[Electron] ─ React ─HTTP─▶ Express (127.0.0.1)    [Navegador] ─ React ─HTTP─▶ Express (0.0.0.0:3000)
+                             │                                                     │
+                             ▼                                                     ▼
+              \\SERVIDOR\bt_fitas\dados.db                                  ./data/dados.db
+              (compartilhado entre as máquinas,                         (um único processo grava)
+               escritas serializadas por lock de arquivo)
 ```
 
-- Um único app Electron (mesmo instalador em toda máquina) — a tela exibida
-  depende do perfil de quem faz login, não da máquina.
-- Sem servidor de aplicação: o "servidor mãe" só compartilha a pasta de
-  rede. Toda a lógica roda em cada cliente.
-- Sem push em tempo real: cada app faz polling do banco periodicamente pra
-  refletir mudanças feitas por outras máquinas.
+### Backend em camadas (`src/server/`)
 
-**Stack:** Electron + TypeScript, React + Vite na interface, `better-sqlite3`
-no processo principal, IPC via `contextBridge` (contextIsolation ativado,
-sem nodeIntegration no renderer), `proper-lockfile` para serializar escritas
-entre máquinas, Vitest para testes.
+```
+prisma/schema.prisma       modelos do Prisma (mapeiam as tabelas existentes do dados.db)
+src/shared/types.ts        contratos da API (entidades e DTOs Create*Input), usados por front e back
+src/server/
+  repositories/            acesso a dados via Prisma Client — sem regra de negócio
+  services/                regras de negócio e validações; lançam AppError(mensagem, status)
+  controllers/             leem req (params/body/usuário logado) e chamam o service
+  routes/                  endpoints por módulo + autenticação/perfil; index.ts monta /api
+  middlewares/             autenticar, exigirPerfil, errorHandler
+  db/                      conexão Prisma, criação das tabelas, lock de arquivo, backup diário
+  app.ts                   createApp() — usado pelas duas versões
+  server.ts                ponto de entrada da versão web
+electron/main.ts           ponto de entrada da versão desktop (sobe o createApp() em 127.0.0.1)
+```
 
-### Por que SQLite em pasta de rede é seguro aqui
+Toda escrita passa por `writeTransaction()` (`src/server/db/client.ts`):
+lock de arquivo no `dados.db` (serializa gravações entre máquinas na versão
+desktop) + `prisma.$transaction` (tudo ou nada). O banco usa journal mode
+`DELETE` (WAL não é confiável sobre SMB) e `busy_timeout` de 5 s.
 
-WAL não é confiável sobre SMB, então o banco usa journal mode `DELETE`
-(rollback tradicional) + `busy_timeout` alto como segunda camada. Toda
-escrita passa por um lock de arquivo (`dados.db.lock`, via
-`proper-lockfile`) antes de abrir a transação, serializando gravações entre
-máquinas. Dado o baixo volume de escrita simultânea de uma fábrica desse
-porte, esse risco fica administrável sem precisar de um servidor central.
+**Compatibilidade:** os modelos do Prisma usam `@map`/`@@map` para os
+nomes originais em snake_case e datas como texto ISO, então os `dados.db`
+criados pela v1.x abrem sem migração. As tabelas são criadas em runtime por
+`src/server/db/schema.ts` (`CREATE TABLE IF NOT EXISTS`) — ao alterar o
+`schema.prisma`, altere também esse arquivo.
+
+### API (`/api`)
+
+Login por token (`POST /api/auth/login` → `Authorization: Bearer <token>`).
+Cada módulo é restrito a um perfil; o admin acessa tudo. O `usuarioId` de
+pedidos, apontamentos e movimentos é sempre o do usuário logado.
+
+| Módulo | Rotas |
+|---|---|
+| auth | `POST /auth/login`, `POST /auth/logout`, `GET /auth/me` |
+| financeiro | `GET/POST /clientes`, `GET/POST /produtos`, `GET/POST /pedidos` |
+| produção | `GET /producao/ops-abertas`, `GET /producao/ops/:id`, `GET /producao/ops/:id/apontamentos`, `POST /producao/apontamentos`, `PATCH /producao/ops/:id/encerrar` |
+| estoque | `GET /estoque/aguardando-entrada`, `GET /estoque/em-estoque`, `POST /estoque/entradas`, `POST /estoque/saidas` |
+| admin | `GET/POST /usuarios`, `PATCH /usuarios/:id/ativo`, `/perfil`, `/senha` |
+
+Exemplo:
+
+```bash
+TOKEN=$(curl -s -X POST localhost:3000/api/auth/login -H "Content-Type: application/json" \
+  -d '{"login":"admin","senha":"admin123"}' | jq -r .token)
+curl -X POST localhost:3000/api/producao/apontamentos -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" -d '{"opId": 1, "quantidade": 80}'
+```
+
+**Stack:** TypeScript, Express 5, Prisma 7 (adapter `better-sqlite3`),
+React + Vite, Electron (versão desktop), `proper-lockfile`, `bcryptjs`,
+Vitest + Supertest.
 
 ## Modelo de dados
 
@@ -86,20 +129,29 @@ existente, cache/fila offline, notificação push em tempo real.
 
 ```bash
 npm install
-npm run dev     # abre o app Electron em modo desenvolvimento
-npm test        # roda os testes (Vitest)
-npm run build   # build de produção
+npm run dev:desktop   # app Electron em modo desenvolvimento
+npm run dev:web       # versão web em http://localhost:3000 (com hot reload)
+npm test              # testes (Vitest): services, API HTTP e compatibilidade do banco
+npm run build         # build das duas versões
 ```
 
-No primeiro uso, o app pede o caminho da pasta compartilhada de rede (ex:
-`\\SERVIDOR\bt_fitas`) e cria um usuário admin padrão (`admin` / `admin123`
-— trocar depois do primeiro login).
+Versão web em produção:
+
+```bash
+npm run build:web
+PORT=3000 BT_FITAS_DATA_DIR=/caminho/dos/dados npm run start:web
+```
+
+Na versão desktop, o primeiro uso pede o caminho da pasta compartilhada de
+rede (ex: `\\SERVIDOR\bt_fitas`). Nas duas versões, um banco sem usuários
+ganha o admin padrão (`admin` / `admin123` — trocar depois do primeiro login).
+
+O Prisma Client é gerado em `src/server/generated/` (fora do git) pelos
+próprios scripts `dev`, `build` e `test`; para gerar à mão: `npm run generate`.
 
 **Nota sobre módulo nativo:** `better-sqlite3` é o único módulo nativo do
 projeto e usa prebuilds N-API (funcionam em Node e Electron sem rebuild).
 Por isso a senha usa `bcryptjs` (JS puro) em vez de `bcrypt` nativo, e o
 `.npmrc` do projeto define `ignore-scripts=true` — evita que o `npm
 install` tente compilar código nativo (precisaria de Visual Studio Build
-Tools), o que não pode ser assumido nos computadores da fábrica. O binário
-do Electron é baixado automaticamente na primeira vez que rodar `npm run
-dev`.
+Tools), o que não pode ser assumido nos computadores da fábrica.

@@ -10,8 +10,7 @@ export default function SetupFolder({ onConfigured }: { onConfigured: () => void
     setErro(null)
     setSaving(true)
     try {
-      await window.api.setDbFolderPath(path.trim())
-      await window.api.ensureSeedAdmin()
+      await window.desktop!.setDbFolderPath(path.trim())
       onConfigured()
     } catch (err) {
       setErro(

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { Usuario, Perfil } from '../../../shared/types'
+import { api } from '../../api'
 
 const PERFIS: Perfil[] = ['financeiro', 'admin', 'producao', 'estoque']
 
@@ -13,7 +14,7 @@ export default function Usuarios() {
   const [erro, setErro] = useState<string | null>(null)
 
   async function reload() {
-    setUsuarios(await window.api.listUsuarios())
+    setUsuarios(await api.listUsuarios())
   }
 
   useEffect(() => {
@@ -29,7 +30,7 @@ export default function Usuarios() {
     setErro(null)
     setSaving(true)
     try {
-      await window.api.createUsuario({ nome: nome.trim(), login: login.trim(), senha, perfil })
+      await api.createUsuario({ nome: nome.trim(), login: login.trim(), senha, perfil })
       setNome('')
       setLogin('')
       setSenha('')
@@ -43,19 +44,19 @@ export default function Usuarios() {
   }
 
   async function handleToggleAtivo(usuario: Usuario) {
-    await window.api.setUsuarioAtivo(usuario.id, !usuario.ativo)
+    await api.setUsuarioAtivo(usuario.id, !usuario.ativo)
     await reload()
   }
 
   async function handlePerfilChange(usuario: Usuario, novoPerfil: Perfil) {
-    await window.api.setUsuarioPerfil(usuario.id, novoPerfil)
+    await api.setUsuarioPerfil(usuario.id, novoPerfil)
     await reload()
   }
 
   async function handleResetSenha(usuario: Usuario) {
     const novaSenha = window.prompt(`Nova senha para ${usuario.nome}:`)
     if (!novaSenha) return
-    await window.api.resetUsuarioSenha(usuario.id, novaSenha)
+    await api.resetUsuarioSenha(usuario.id, novaSenha)
   }
 
   return (

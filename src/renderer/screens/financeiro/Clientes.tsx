@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { Cliente } from '../../../shared/types'
+import { api } from '../../api'
 
 export default function Clientes() {
   const [clientes, setClientes] = useState<Cliente[]>([])
@@ -12,7 +13,7 @@ export default function Clientes() {
   const [erro, setErro] = useState<string | null>(null)
 
   async function reload() {
-    setClientes(await window.api.listClientes())
+    setClientes(await api.listClientes())
   }
 
   useEffect(() => {
@@ -28,7 +29,7 @@ export default function Clientes() {
     setErro(null)
     setSaving(true)
     try {
-      await window.api.createCliente({
+      await api.createCliente({
         codigo: codigo.trim(),
         nome: nome.trim(),
         cnpjCpf: cnpjCpf.trim(),

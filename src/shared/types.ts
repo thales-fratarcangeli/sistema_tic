@@ -149,6 +149,10 @@ export interface OpComContexto extends OrdemProducao {
   produtoDescricao: string
 }
 
+export interface OpDetalhada extends OpComContexto {
+  apontamentos: ApontamentoProducao[]
+}
+
 export interface CreateApontamentoInput {
   opId: number
   usuarioId: number
@@ -186,4 +190,9 @@ export interface CreateUsuarioInput {
   login: string
   senha: string
   perfil: Perfil
+}
+
+export interface LoginResponse {
+  token: string
+  usuario: Usuario
 }

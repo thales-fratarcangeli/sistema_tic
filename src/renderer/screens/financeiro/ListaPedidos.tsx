@@ -1,5 +1,6 @@
 import { useEffect, useImperativeHandle, forwardRef, useState } from 'react'
 import type { PedidoComItens } from '../../../shared/types'
+import { api } from '../../api'
 
 const STATUS_LABEL: Record<string, string> = {
   aberto: 'Aberto',
@@ -17,7 +18,7 @@ const ListaPedidos = forwardRef<ListaPedidosHandle>((_props, ref) => {
   const [pedidos, setPedidos] = useState<PedidoComItens[]>([])
 
   async function reload() {
-    setPedidos(await window.api.listPedidos())
+    setPedidos(await api.listPedidos())
   }
 
   useImperativeHandle(ref, () => ({ reload }))

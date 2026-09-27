@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { Produto } from '../../../shared/types'
+import { api } from '../../api'
 
 export default function Produtos() {
   const [produtos, setProdutos] = useState<Produto[]>([])
@@ -11,7 +12,7 @@ export default function Produtos() {
   const [erro, setErro] = useState<string | null>(null)
 
   async function reload() {
-    setProdutos(await window.api.listProdutos())
+    setProdutos(await api.listProdutos())
   }
 
   useEffect(() => {
@@ -28,7 +29,7 @@ export default function Produtos() {
     setErro(null)
     setSaving(true)
     try {
-      await window.api.createProduto({
+      await api.createProduto({
         codigo: codigo.trim(),
         descricao: descricao.trim(),
         unidade: unidade.trim(),

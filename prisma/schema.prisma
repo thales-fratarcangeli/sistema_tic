@@ -1,0 +1,144 @@
+// Modelo de dados do bt_fitas. As tabelas e colunas mapeiam 1:1 o banco
+// dados.db que já está em uso na fábrica (nomes em snake_case via @map /
+// @@map), então a mesma base continua funcionando depois da troca para o
+// Prisma. Datas ficam como String (ISO 8601) porque é assim que elas já
+// estão gravadas nas bases existentes.
+//
+// A criação das tabelas em runtime é feita por src/server/db/schema.ts
+// (CREATE TABLE IF NOT EXISTS) — mantenha os dois arquivos em sincronia.
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/server/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Usuario {
+  id        Int     @id @default(autoincrement())
+  nome      String
+  login     String  @unique
+  senhaHash String  @map("senha_hash")
+  // financeiro | admin | producao | estoque
+  perfil    String
+  ativo     Boolean @default(true)
+
+  pedidos           Pedido[]
+  apontamentos      ApontamentoProducao[]
+  estoqueMovimentos EstoqueMovimento[]
+
+  @@map("usuarios")
+}
+
+model Cliente {
+  id          Int     @id @default(autoincrement())
+  codigo      String  @unique
+  nome        String
+  cnpjCpf     String  @map("cnpj_cpf")
+  inscricaoRg String? @map("inscricao_rg")
+  endereco    String?
+  bairro      String?
+  cidade      String?
+  cep         String?
+  telefone    String?
+  celular     String?
+
+  pedidos Pedido[]
+
+  @@map("clientes")
+}
+
+model Produto {
+  id                  Int    @id @default(autoincrement())
+  codigo              String @unique
+  descricao           String
+  unidade             String
+  valorUnitarioPadrao Float  @map("valor_unitario_padrao")
+
+  itens PedidoItem[]
+
+  @@map("produtos")
+}
+
+model Pedido {
+  id                Int     @id @default(autoincrement())
+  numero            Int     @unique
+  clienteId         Int     @map("cliente_id")
+  cliente           Cliente @relation(fields: [clienteId], references: [id])
+  usuarioId         Int     @map("usuario_id")
+  usuario           Usuario @relation(fields: [usuarioId], references: [id])
+  condicaoPagamento String? @map("condicao_pagamento")
+  dataPedido        String  @map("data_pedido")
+  prazoEntrega      String? @map("prazo_entrega")
+  observacoes       String?
+
+  itens PedidoItem[]
+
+  @@map("pedidos")
+}
+
+model PedidoItem {
+  id            Int     @id @default(autoincrement())
+  pedidoId      Int     @map("pedido_id")
+  pedido        Pedido  @relation(fields: [pedidoId], references: [id])
+  produtoId     Int     @map("produto_id")
+  produto       Produto @relation(fields: [produtoId], references: [id])
+  quantidade    Float
+  valorUnitario Float   @map("valor_unitario")
+  valorTotal    Float   @map("valor_total")
+
+  // 1:1 — cada item de pedido gera exatamente uma OP
+  ordemProducao     OrdemProducao?
+  estoqueMovimentos EstoqueMovimento[]
+
+  @@map("pedido_itens")
+}
+
+model OrdemProducao {
+  id                   Int        @id @default(autoincrement())
+  numero               Int        @unique
+  pedidoItemId         Int        @unique @map("pedido_item_id")
+  pedidoItem           PedidoItem @relation(fields: [pedidoItemId], references: [id])
+  quantidadeSolicitada Float      @map("quantidade_solicitada")
+  quantidadeProduzida  Float      @default(0) @map("quantidade_produzida")
+  // aberta | em_andamento | encerrada
+  status               String     @default("aberta")
+  dataAbertura         String     @map("data_abertura")
+  dataEncerramento     String?    @map("data_encerramento")
+
+  // 1:N — uma OP recebe zero ou muitos apontamentos (produção parcial)
+  apontamentos ApontamentoProducao[]
+
+  @@map("ordens_producao")
+}
+
+model ApontamentoProducao {
+  id         Int           @id @default(autoincrement())
+  opId       Int           @map("op_id")
+  op         OrdemProducao @relation(fields: [opId], references: [id])
+  usuarioId  Int           @map("usuario_id")
+  usuario    Usuario       @relation(fields: [usuarioId], references: [id])
+  quantidade Float
+  dataHora   String        @map("data_hora")
+  observacao String?
+
+  @@map("apontamentos_producao")
+}
+
+model EstoqueMovimento {
+  id           Int        @id @default(autoincrement())
+  pedidoItemId Int        @map("pedido_item_id")
+  pedidoItem   PedidoItem @relation(fields: [pedidoItemId], references: [id])
+  // entrada | saida
+  tipo         String
+  quantidade   Float
+  usuarioId    Int        @map("usuario_id")
+  usuario      Usuario    @relation(fields: [usuarioId], references: [id])
+  dataHora     String     @map("data_hora")
+  observacao   String?
+
+  @@map("estoque_movimentos")
+}

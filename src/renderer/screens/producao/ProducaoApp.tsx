@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../../auth/AuthContext'
 import type { OpComContexto } from '../../../shared/types'
+import { api } from '../../api'
 
 export default function ProducaoApp() {
   const { user } = useAuth()
@@ -10,7 +11,7 @@ export default function ProducaoApp() {
   const [busyOpId, setBusyOpId] = useState<number | null>(null)
 
   async function reload() {
-    setOps(await window.api.listOpsAbertas())
+    setOps(await api.listOpsAbertas())
   }
 
   useEffect(() => {
@@ -28,7 +29,7 @@ export default function ProducaoApp() {
     setErro(null)
     setBusyOpId(op.id)
     try {
-      await window.api.createApontamento({ opId: op.id, usuarioId: user.id, quantidade })
+      await api.createApontamento({ opId: op.id, quantidade })
       setQuantidades((prev) => ({ ...prev, [op.id]: '' }))
       await reload()
     } catch (err) {
@@ -49,7 +50,7 @@ export default function ProducaoApp() {
     setErro(null)
     setBusyOpId(op.id)
     try {
-      await window.api.encerrarOp(op.id)
+      await api.encerrarOp(op.id)
       await reload()
     } catch (err) {
       setErro('Não foi possível encerrar a OP')

@@ -1,26 +1,35 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'node:path'
-import { readConfig, writeConfig } from '../src/main/config'
-import { setupDatabase } from '../src/main/dbSetup'
-import { registerAuthIpc } from '../src/main/ipc/authIpc'
-import { registerFinanceiroIpc } from '../src/main/ipc/financeiroIpc'
-import { registerProducaoIpc } from '../src/main/ipc/producaoIpc'
-import { registerEstoqueIpc } from '../src/main/ipc/estoqueIpc'
-import { registerAdminIpc } from '../src/main/ipc/adminIpc'
+import { once } from 'node:events'
+import type { AddressInfo } from 'node:net'
+import express from 'express'
+import { readConfig, writeConfig } from '../src/desktop/config'
+import { createApp } from '../src/server/app'
+import { setupDatabase } from '../src/server/db/setup'
+import { isDatabaseConnected } from '../src/server/db/client'
+
+// Versão desktop: cada computador roda este app, que sobe o mesmo servidor
+// Express + Prisma da versão web, mas só em 127.0.0.1 (invisível para a
+// rede) e apontando para o dados.db na pasta compartilhada. A interface
+// React fala com ele por HTTP, exatamente como na versão web.
 
 const configPath = path.join(app.getPath('userData'), 'config.json')
 
-async function openDbAndRegisterIpc(dbFolderPath: string) {
-  const { db, dbFilePath } = await setupDatabase(dbFolderPath)
+// Em desenvolvimento o Vite (porta 5173) faz proxy de /api para esta porta
+// fixa — ver vite.config.ts. Em produção a porta é escolhida pelo sistema.
+const DEV_API_PORT = 3001
 
-  registerAuthIpc(db, dbFilePath)
-  registerFinanceiroIpc(db, dbFilePath)
-  registerProducaoIpc(db, dbFilePath)
-  registerEstoqueIpc(db, dbFilePath)
-  registerAdminIpc(db, dbFilePath)
+async function startServer(): Promise<string> {
+  const devServerUrl = process.env.VITE_DEV_SERVER_URL
+  const frontend = devServerUrl ? undefined : express.static(path.join(__dirname, '../dist'))
+
+  const server = createApp({ frontend }).listen(devServerUrl ? DEV_API_PORT : 0, '127.0.0.1')
+  await once(server, 'listening')
+
+  return devServerUrl ?? `http://127.0.0.1:${(server.address() as AddressInfo).port}`
 }
 
-function createWindow() {
+function createWindow(url: string) {
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
@@ -38,26 +47,29 @@ function createWindow() {
     },
   })
 
-  if (process.env.VITE_DEV_SERVER_URL) {
-    win.loadURL(process.env.VITE_DEV_SERVER_URL)
-  } else {
-    win.loadFile(path.join(__dirname, '../dist/index.html'))
-  }
+  win.loadURL(url)
 }
 
 app.whenReady().then(async () => {
-  ipcMain.handle('config:get', () => readConfig(configPath))
+  // A tela de configuração só aparece enquanto o banco não está aberto —
+  // inclusive quando a pasta salva ficou inacessível (ex: servidor
+  // desligado), para o usuário poder apontar outro caminho.
+  ipcMain.handle('config:get', () => (isDatabaseConnected() ? readConfig(configPath) : null))
   ipcMain.handle('config:set', async (_event, dbFolderPath: string) => {
+    await setupDatabase(dbFolderPath)
     writeConfig(configPath, { dbFolderPath })
-    await openDbAndRegisterIpc(dbFolderPath)
   })
 
   const existing = readConfig(configPath)
   if (existing) {
-    await openDbAndRegisterIpc(existing.dbFolderPath)
+    try {
+      await setupDatabase(existing.dbFolderPath)
+    } catch (err) {
+      console.error(`Não foi possível abrir o banco em ${existing.dbFolderPath}:`, err)
+    }
   }
 
-  createWindow()
+  createWindow(await startServer())
 })
 
 app.on('window-all-closed', () => {

@@ -7,3 +7,8 @@ release/
 .DS_Store
 .worktrees/
 thiago.pdf
+
+# Prisma Client gerado (npx prisma generate)
+src/server/generated/
+dist-server/
+data/

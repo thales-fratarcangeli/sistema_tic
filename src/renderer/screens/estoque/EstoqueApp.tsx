@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../../auth/AuthContext'
 import type { ItemAguardandoEntrada, ItemEmEstoque } from '../../../shared/types'
+import { api } from '../../api'
 
 export default function EstoqueApp() {
   const { user } = useAuth()
@@ -10,8 +11,8 @@ export default function EstoqueApp() {
   const [busyId, setBusyId] = useState<number | null>(null)
 
   async function reload() {
-    setAguardando(await window.api.listAguardandoEntrada())
-    setEmEstoque(await window.api.listEmEstoque())
+    setAguardando(await api.listAguardandoEntrada())
+    setEmEstoque(await api.listEmEstoque())
   }
 
   useEffect(() => {
@@ -23,9 +24,8 @@ export default function EstoqueApp() {
     setErro(null)
     setBusyId(item.pedidoItemId)
     try {
-      await window.api.registrarEntrada({
+      await api.registrarEntrada({
         pedidoItemId: item.pedidoItemId,
-        usuarioId: user.id,
         quantidade: item.quantidade,
       })
       await reload()
@@ -46,9 +46,8 @@ export default function EstoqueApp() {
     setErro(null)
     setBusyId(item.pedidoItemId)
     try {
-      await window.api.registrarSaida({
+      await api.registrarSaida({
         pedidoItemId: item.pedidoItemId,
-        usuarioId: user.id,
         quantidade: item.quantidade,
       })
       await reload()

@@ -33,14 +33,20 @@ function AppShell({ children }: { children: React.ReactNode }) {
 }
 
 function Routed() {
-  const { user } = useAuth()
+  const { user, restoring } = useAuth()
   const [configured, setConfigured] = useState<boolean | null>(null)
 
   useEffect(() => {
-    window.api.getDbFolderPath().then((config) => setConfigured(config !== null))
+    // Só a versão desktop escolhe a pasta do banco; na web o servidor já
+    // sobe com o banco configurado.
+    if (!window.desktop) {
+      setConfigured(true)
+      return
+    }
+    window.desktop.getDbFolderPath().then((config) => setConfigured(config !== null))
   }, [])
 
-  if (configured === null) return <p className="loading">Carregando...</p>
+  if (configured === null || restoring) return <p className="loading">Carregando...</p>
   if (!configured) return <SetupFolder onConfigured={() => setConfigured(true)} />
   if (!user) return <Login />
 

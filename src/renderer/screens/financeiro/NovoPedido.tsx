@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { Cliente, Produto } from '../../../shared/types'
 import { useAuth } from '../../auth/AuthContext'
+import { api } from '../../api'
 
 interface ItemForm {
   produtoId: string
@@ -24,8 +25,8 @@ export default function NovoPedido({ onCriado }: { onCriado: () => void }) {
   const [erro, setErro] = useState<string | null>(null)
 
   useEffect(() => {
-    window.api.listClientes().then(setClientes)
-    window.api.listProdutos().then(setProdutos)
+    api.listClientes().then(setClientes)
+    api.listProdutos().then(setProdutos)
   }, [])
 
   function updateItem(index: number, patch: Partial<ItemForm>) {
@@ -76,9 +77,8 @@ export default function NovoPedido({ onCriado }: { onCriado: () => void }) {
     setErro(null)
     setSaving(true)
     try {
-      await window.api.createPedido({
+      await api.createPedido({
         clienteId: Number(clienteId),
-        usuarioId: user.id,
         condicaoPagamento: condicaoPagamento.trim() || null,
         prazoEntrega: prazoEntrega.trim() || null,
         itens: itensValidos,
